@@ -1,4 +1,5 @@
 const { User, Appointment } = require('../models')
+const { Op } = require('sequelize')
 
 class AppointmentController {
   async create (req, res) {
@@ -18,6 +19,22 @@ class AppointmentController {
     })
 
     return res.redirect('/app/dashboard')
+  }
+
+  async index (req, res) {
+    const { id } = req.session.user
+    const appointments = await Appointment.findAll({
+      include: [{ model: User, as: 'user' }],
+      where: {
+        provider_id: id,
+        date: {
+          [Op.gte]: new Date()
+        }
+      },
+      order: [['date', 'ASC']]
+    })
+
+    return res.render('appointments/index', { appointments })
   }
 }
 

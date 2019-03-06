@@ -4,6 +4,7 @@ const FileStore = require('session-file-store')(session)
 const nunjucks = require('nunjucks')
 const path = require('path')
 const flash = require('connect-flash')
+const dateFilter = require('nunjucks-date-filter')
 
 class App {
   constructor () {
@@ -32,11 +33,14 @@ class App {
   }
 
   views () {
-    nunjucks.configure(path.resolve(__dirname, 'app', 'views'), {
+    const env = nunjucks.configure(path.resolve(__dirname, 'app', 'views'), {
       autoescape: true,
       express: this.express,
       watch: this.isDev
     })
+
+    env.addFilter('date', dateFilter)
+
     this.express.use(express.static(path.resolve(__dirname, 'public')))
     this.express.set('view engine', 'njk')
   }
